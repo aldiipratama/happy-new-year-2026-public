@@ -1,5 +1,4 @@
-import { type ReactNode, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { type ReactNode } from "react";
 import { AudioToggle } from "../components/AudioToggle";
 
 interface AppLayoutProps {
@@ -7,19 +6,6 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const location = useLocation();
-  const [isVisible, setIsVisible] = useState(false);
-  const [displayChildren, setDisplayChildren] = useState(children);
-
-  useEffect(() => {
-    setIsVisible(false);
-    const timeout = setTimeout(() => {
-      setDisplayChildren(children);
-      setIsVisible(true);
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [location.pathname, children]);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
       {/* Ambient background */}
@@ -35,14 +21,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Audio toggle */}
       <AudioToggle />
 
-      {/* Page content with fade transition */}
-      <div
-        className={`relative z-10 transition-opacity duration-500 ease-out ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        {displayChildren}
-      </div>
+      {/* Page content */}
+      <div className="relative z-10">{children}</div>
     </div>
   );
 }

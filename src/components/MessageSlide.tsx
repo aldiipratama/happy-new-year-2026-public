@@ -69,45 +69,7 @@ export function MessageSlide({ messages, onComplete }: MessageSlideProps) {
     }, LOCK_DURATION);
   }, []);
 
-  const handleNext = () => {
-    if (isTransitioning || isInterrupting || isLocked) return;
-
-    markInteracted();
-
-    const now = Date.now();
-    const timeSinceLastAdvance = now - lastAdvanceTime.current;
-
-    if (
-      lastAdvanceTime.current > 0 &&
-      timeSinceLastAdvance < FAST_CLICK_THRESHOLD
-    ) {
-      triggerPacingControl();
-      return;
-    }
-
-    lastAdvanceTime.current = now;
-
-    if (currentIndex === INTERRUPTION_INDEX && interruptionStep === 0) {
-      runInterruption();
-      return;
-    }
-
-    if (currentIndex >= messages.length - 1) {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        onComplete();
-      }, 500);
-      return;
-    }
-
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentIndex((prev) => prev + 1);
-      setIsTransitioning(false);
-    }, 400);
-  };
-
-  const runInterruption = () => {
+  const doRunInterruption = useCallback(() => {
     setIsInterrupting(true);
     setInterruptionStep(1);
 
@@ -126,17 +88,66 @@ export function MessageSlide({ messages, onComplete }: MessageSlideProps) {
       setTimeout(() => {
         setCurrentIndex((prev) => prev + 1);
         setIsTransitioning(false);
-        lastAdvanceTime.current = Date.now();
+        lastAdvanceTime.current = performance.now();
       }, 400);
     }, 5000);
-  };
+  }, []);
 
-  const getCurrentMessage = () => {
+  const handleNext = useCallback(() => {
+    if (isTransitioning || isInterrupting || isLocked) return;
+
+    markInteracted();
+
+    const now = performance.now();
+    const timeSinceLastAdvance = now - lastAdvanceTime.current;
+
+    if (
+      lastAdvanceTime.current > 0 &&
+      timeSinceLastAdvance < FAST_CLICK_THRESHOLD
+    ) {
+      triggerPacingControl();
+      return;
+    }
+
+    lastAdvanceTime.current = now;
+
+    if (currentIndex === INTERRUPTION_INDEX && interruptionStep === 0) {
+      doRunInterruption();
+      return;
+    }
+
+    if (currentIndex >= messages.length - 1) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        onComplete();
+      }, 500);
+      return;
+    }
+
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => prev + 1);
+      setIsTransitioning(false);
+    }, 400);
+  }, [
+    isTransitioning,
+    isInterrupting,
+    isLocked,
+    markInteracted,
+    triggerPacingControl,
+    currentIndex,
+    interruptionStep,
+    messages.length,
+    onComplete,
+    doRunInterruption,
+  ]);
+
+  const getCurrentMessage = useCallback(() => {
     if (isInterrupting && interruptionStep > 0) {
       return INTERRUPTION_MESSAGES[interruptionStep - 1] || "";
     }
     return messages[currentIndex] || "";
-  };
+  }, [isInterrupting, interruptionStep, messages, currentIndex]);
 
   if (currentIndex >= messages.length) {
     return null;

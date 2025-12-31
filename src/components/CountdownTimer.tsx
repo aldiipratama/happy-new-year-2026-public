@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface TimeLeft {
   days: number;
@@ -16,10 +16,7 @@ export function CountdownTimer({
   targetDate,
   onComplete,
 }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft());
-  const [isComplete, setIsComplete] = useState(false);
-
-  function calculateTimeLeft(): TimeLeft {
+  const calculateTimeLeft = useCallback((): TimeLeft => {
     const difference = targetDate.getTime() - new Date().getTime();
 
     if (difference <= 0) {
@@ -32,7 +29,10 @@ export function CountdownTimer({
       minutes: Math.floor((difference / 1000 / 60) % 60),
       seconds: Math.floor((difference / 1000) % 60),
     };
-  }
+  }, [targetDate]);
+
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft);
+  const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -53,7 +53,7 @@ export function CountdownTimer({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [targetDate, onComplete, isComplete]);
+  }, [calculateTimeLeft, onComplete, isComplete]);
 
   return (
     <div className="flex flex-col items-center gap-8">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 interface ConfettiPiece {
   id: number;
@@ -20,27 +20,27 @@ const COLORS = [
   "#f87171", // red
 ];
 
+function generateConfettiPieces(): ConfettiPiece[] {
+  const pieces: ConfettiPiece[] = [];
+  for (let i = 0; i < 60; i++) {
+    pieces.push({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 0.5,
+      duration: 2 + Math.random() * 2,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      size: 6 + Math.random() * 6,
+      rotation: Math.random() * 360,
+    });
+  }
+  return pieces;
+}
+
 export function Confetti() {
-  const [pieces, setPieces] = useState<ConfettiPiece[]>([]);
   const [isActive, setIsActive] = useState(true);
+  const pieces = useMemo(() => generateConfettiPieces(), []);
 
   useEffect(() => {
-    const confettiPieces: ConfettiPiece[] = [];
-
-    for (let i = 0; i < 60; i++) {
-      confettiPieces.push({
-        id: i,
-        left: Math.random() * 100,
-        delay: Math.random() * 0.5,
-        duration: 2 + Math.random() * 2,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        size: 6 + Math.random() * 6,
-        rotation: Math.random() * 360,
-      });
-    }
-
-    setPieces(confettiPieces);
-
     const timer = setTimeout(() => {
       setIsActive(false);
     }, 4000);

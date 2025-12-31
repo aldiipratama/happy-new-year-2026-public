@@ -5,7 +5,7 @@ import { useFlow } from "../context/FlowContext";
 
 export function Countdown() {
   const navigate = useNavigate();
-  const { completeCountdown, resetFlow } = useFlow();
+  const { completeCountdown } = useFlow();
   const [isHolding, setIsHolding] = useState(false);
   const targetDate = new Date("2026-01-01T00:00:00");
 

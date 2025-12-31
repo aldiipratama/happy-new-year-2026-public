@@ -1,8 +1,26 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useAudio } from "../context/AudioContext";
 import { useFlow } from "../context/FlowContext";
 import { Confetti } from "../components/Confetti";
+
+interface FloatingParticle {
+  id: number;
+  left: string;
+  top: string;
+  animationDelay: string;
+  animationDuration: string;
+}
+
+function generateParticles(): FloatingParticle[] {
+  return [...Array(15)].map((_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
+    animationDelay: `${Math.random() * 5}s`,
+    animationDuration: `${3 + Math.random() * 4}s`,
+  }));
+}
 
 export function Welcome() {
   const navigate = useNavigate();
@@ -10,6 +28,7 @@ export function Welcome() {
   const { resetFlow } = useFlow();
   const [isVisible, setIsVisible] = useState(false);
   const fireworksPlayed = useRef(false);
+  const particles = useMemo(() => generateParticles(), []);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
@@ -38,15 +57,15 @@ export function Welcome() {
 
       {/* Floating particles */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {[...Array(15)].map((_, i) => (
+        {particles.map((particle) => (
           <div
-            key={i}
+            key={particle.id}
             className="absolute w-1 h-1 bg-white/20 rounded-full animate-float"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${3 + Math.random() * 4}s`,
+              left: particle.left,
+              top: particle.top,
+              animationDelay: particle.animationDelay,
+              animationDuration: particle.animationDuration,
             }}
           />
         ))}
