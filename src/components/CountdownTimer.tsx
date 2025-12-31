@@ -55,8 +55,6 @@ export function CountdownTimer({
     return () => clearInterval(timer);
   }, [targetDate, onComplete, isComplete]);
 
-  const formatNumber = (num: number) => num.toString().padStart(2, "0");
-
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6">
